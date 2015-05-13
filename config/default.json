@@ -1,0 +1,27 @@
+{
+    "updateCooldownSecs": 60,
+    "reddit": {
+        "searchCooldownSecs": 80,
+        "maxPages": 3,
+        "concurrency": 5
+    },
+    "youTube": {
+        "searchCooldownSecs": 70,
+        "latestVideoLookbackMins": 45,
+        "maxPages": 25,
+        "concurrency": 15,
+        "apiKey": "REPLACE_WITH_KEY"
+    },
+    "redis": {
+        "uri": null,
+        "host": "127.0.0.1",
+        "port": 6379,
+        "defaultExpirationSeconds": 3600,
+        "options": {
+            "auth_pass": null
+        }
+    },
+    "db": {
+        "uri": "mongodb://localhost/301tube"
+    }
+}
