@@ -1,4 +1,5 @@
 const config = require("stockpiler")(),
+    http = require("http"),
     _ = require("lodash"),
     YouTube = require("./YouTube"),
     Crawler = require("./Crawler"),
@@ -78,5 +79,12 @@ module.exports = {
         clearTimeout(youTubeSearchTimeout);
         clearTimeout(redditSearchTimeout);
         clearTimeout(updateTimeout);
+    },
+    startServer: () => {
+        // Appease Heroku
+        const server = http.createServer((req, res) => {
+            res.end(req.url);
+        });
+        server.listen(config.webserver.port, () => console.log(`Server listening on port ${config.webserver.port}`));
     }
 };

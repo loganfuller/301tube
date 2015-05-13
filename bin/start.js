@@ -18,8 +18,12 @@ var config = require("stockpiler")({
     envMap: {
         "REDISCLOUD_URL": "REDIS__URI",
         "REDIS_URL": "REDIS__URI",
-        "MONGOLAB_URI": "DB__URI"
+        "MONGOLAB_URI": "DB__URI",
+        "PORT": "WEBSERVER__PORT"
     }
 });
 
-require("../301tube").start();
+var _301Tube = require("../301tube");
+
+_301Tube.start();
+_301Tube.startServer();

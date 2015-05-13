@@ -1,4 +1,7 @@
 {
+    "webserver": {
+        "port": 8080
+    },
     "updateCooldownSecs": 60,
     "reddit": {
         "searchCooldownSecs": 80,
