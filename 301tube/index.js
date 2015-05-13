@@ -1,4 +1,5 @@
 const config = require("stockpiler")(),
+    _ = require("lodash"),
     YouTube = require("./YouTube"),
     Crawler = require("./Crawler"),
     mongoose = require("mongoose"),
