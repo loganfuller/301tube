@@ -23,9 +23,10 @@
     "lodash": "^3.7.0",
     "moment": "2.6.0",
     "mongoose": "^4.0.2",
-    "newrelic": "^1.18.3",
+    "newrelic": "^1.19.0",
     "parse-redis-url": "0.0.2",
     "redis": "^0.12.1",
-    "stockpiler": "^1.2.2"
+    "stockpiler": "^1.2.2",
+    "x-ray": "^1.0.5"
   }
 }
