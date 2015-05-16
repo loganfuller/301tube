@@ -79,8 +79,14 @@ module.exports = {
             scheduleRedditSearch();
         });
 
-        // Schedule initial update
-        scheduleUpdate();
+        // Perform initial update
+        crawler.updateAll301(err => {
+            if(!!err) console.error(`update error: ${err}`);
+            Video.regenerateRankings((err, model) => {
+                if(!!err) console.error(`ranking update error: ${err}`);
+                scheduleUpdate();
+            });
+        });
     },
     stop: () => {
         clearTimeout(youTubeSearchTimeout);

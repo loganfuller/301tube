@@ -115,7 +115,8 @@ let mapFuncString = `(function() {
     .replace("'__REGRESSION__'", fs.readFileSync(path.resolve(require.resolve("regression"), "../build/regression.min.js"), { encoding: "utf8" }));
 
 videoSchema.statics.regenerateRankings = function(next) {
-    console.log("regenerating rankings...")
+    console.log("regenerating rankings...");
+
     return this.mapReduce({
         map: eval(mapFuncString),
         reduce: function(_id, obj) {
@@ -139,12 +140,8 @@ videoSchema.statics.regenerateRankings = function(next) {
             replace: "scored_videos"
         }
     }, (err, model) => {
-        if(err) {
-            next(err);
-        } else {
-            _rankedModel = model;
-            next(err, model)
-        }
+        _rankedModel = err ? null : model;
+        next(err, model);
     });
 };
 
