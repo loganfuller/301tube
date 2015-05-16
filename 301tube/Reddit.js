@@ -4,7 +4,7 @@ const config = require("stockpiler")(),
     async = require("async");
 
 class Reddit {
-    scrapeSubreddits(subreddits=["videos", "funny", "aww", "AskReddit", "todayilearned", "worldnews","IAmA", "news", "technology", "bestof", "all"], next) {
+    scrapeSubreddits(subreddits=["videos", "funny", "aww", "AskReddit", "todayilearned", "worldnews", "IAmA", "news", "technology", "bestof", "all"], next) {
         let videoIds = [];
 
         const q = async.queue((subreddit, callback) => {

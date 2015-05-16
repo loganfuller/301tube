@@ -1,6 +1,7 @@
 const config = require("stockpiler")(),
     http = require("http"),
     _ = require("lodash"),
+    Video = require("./models/Video"),
     YouTube = require("./YouTube"),
     Crawler = require("./Crawler"),
     mongoose = require("mongoose"),
@@ -53,7 +54,13 @@ const scheduleUpdate = function() {
         updateTimeout = null;
         crawler.updateAll301(err => {
             if(!!err) console.error(`update error: ${err}`);
-            scheduleUpdate();
+
+            // Updating rankings
+            Video.regenerateRankings((err, results) => {
+                if(!!err) console.error(`ranking update error: ${err}`);
+
+                scheduleUpdate();
+            });
         });
     }, config.updateCooldownSecs * 1000);
 };
