@@ -9,7 +9,7 @@ if(process.env.NEW_RELIC_LICENSE_KEY) {
 if(!/babel-node/ig.test(process.env._)) {
     require("babel/register")({
         ignore: false,
-        only: /^.*\/.*\/301tube\//
+        only: /^.*\/.*\/301tube|webserver\//
     });
 }
 
@@ -23,7 +23,8 @@ var config = require("stockpiler")({
     }
 });
 
-var _301Tube = require("../301tube");
+var _301Tube = require("../301tube"),
+    webserver = require("../webserver/app");
 
 _301Tube.start();
-_301Tube.startServer();
+webserver.startServer();

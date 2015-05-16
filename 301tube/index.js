@@ -56,7 +56,7 @@ const scheduleUpdate = function() {
             if(!!err) console.error(`update error: ${err}`);
 
             // Updating rankings
-            Video.regenerateRankings((err, results) => {
+            Video.regenerateRankings((err, model) => {
                 if(!!err) console.error(`ranking update error: ${err}`);
 
                 scheduleUpdate();
@@ -86,12 +86,5 @@ module.exports = {
         clearTimeout(youTubeSearchTimeout);
         clearTimeout(redditSearchTimeout);
         clearTimeout(updateTimeout);
-    },
-    startServer: () => {
-        // Appease Heroku
-        const server = http.createServer((req, res) => {
-            res.end(req.url);
-        });
-        server.listen(config.webserver.port, () => console.log(`Server listening on port ${config.webserver.port}`));
     }
 };

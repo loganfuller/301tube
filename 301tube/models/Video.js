@@ -1,6 +1,8 @@
 const mongoose = require("mongoose"),
     Schema = mongoose.Schema;
 
+let _rankedModel;
+
 const videoSchema = new Schema({
     active: { type: Boolean, default: true },
     videoId: { type: String, index: { unique: true } },
@@ -35,6 +37,14 @@ const videoSchema = new Schema({
     strict: true,
     safe: true
 });
+
+videoSchema.statics.getRankedModel = function(next) {
+    if(_rankedModel) {
+        next(null, _rankedModel);
+    } else {
+        this.regenerateRankings(next);
+    }
+};
 
 videoSchema.statics.regenerateRankings = function(next) {
     return this.mapReduce({
@@ -93,7 +103,14 @@ videoSchema.statics.regenerateRankings = function(next) {
         out: {
             replace: "scored_videos"
         }
-    }, next);
+    }, (err, model) => {
+        if(err) {
+            next(err);
+        } else {
+            _rankedModel = model;
+            next(err, model)
+        }
+    });
 };
 
 module.exports = mongoose.model("Video", videoSchema);

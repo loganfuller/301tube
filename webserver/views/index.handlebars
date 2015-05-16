@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>301Tube</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- <link rel="stylesheet" href="/css/main.css"> -->
+        <script>
+            window.clientConfig = {{{clientConfig}}};
+        </script>
+    </head>
+    <body>
+        {{#each videos}}
+            <h2>#{{@index}} - {{this.title}}</h2>
+            <iframe id="player" type="text/html" width="640" height="390" src="http://www.youtube.com/embed/{{this.videoId}}" frameborder="0"></iframe>
+        {{/each}}
+    </body>
+</html>

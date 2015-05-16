@@ -1,6 +1,26 @@
 {
     "webserver": {
-        "port": 8080
+        "host": "0.0.0.0",
+        "port": 8080,
+        "etag": "weak",
+        "xPoweredBy": false,
+        "compression": {
+            "enabled": true,
+            "level": 7,
+            "threshold": "1kb"
+        },
+        "static": {
+            "etag": true,
+            "redirect": true,
+            "dotfiles": "ignore",
+            "extensions": false,
+            "index": false,
+            "lastModified": false,
+            "maxAge": 0
+        }
+    },
+    "client": {
+        "useCdn": false
     },
     "updateCooldownSecs": 60,
     "reddit": {
