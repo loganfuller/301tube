@@ -96,7 +96,7 @@ videoSchema.statics.regenerateRankings = function(next) {
             "statistics.viewCount": 301,
             active: true,
             title: {
-                "$not": /movie|minecraft|trailer|(my little pony)|download|(m\.o\.v\.i\.e)|episode|hack|keygen|cheat|wwe/ig
+                "$not": /movie|minecraft|trailer|hearthstone|gta|(my little pony)|download|(m\.o\.v\.i\.e)|episode|hack|keygen|cheat|wwe/ig
             }
         },
         jsMode: true,
