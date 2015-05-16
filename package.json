@@ -30,6 +30,8 @@
     "newrelic": "^1.19.0",
     "parse-redis-url": "0.0.2",
     "redis": "^0.12.1",
+    "regression": "^1.2.1",
+    "spearson": "https://github.com/agrueneberg/Spearson/tarball/5afd8539568c4bb1fdb9694066b67a615afc0808",
     "stockpiler": "^1.2.2",
     "x-ray": "^1.0.5"
   }
