@@ -147,7 +147,7 @@ class Crawler {
     }
 
     searchReddit(next) {
-        // console.log("Searching Reddit...");
+        console.log("Searching Reddit...");
 
         this.reddit.scrapeSubreddits(undefined, (err, videoIds) => {
             if(!!err) return next(err);
@@ -156,7 +156,7 @@ class Crawler {
     }
 
     searchYouTube(next) {
-        // console.log("Searching YouTube...");
+        console.log("Searching YouTube...");
 
         let searchStartTime = moment().subtract(config.youTube.latestVideoLookbackMins, "minutes"),
             searchEndTime = new Date(),
@@ -197,7 +197,7 @@ class Crawler {
     }
 
     updateAll301(next) {
-        // console.log("Updating...");
+        console.log("Updating...");
 
         Video.find({ "statistics.viewCount": 301, "active": true }, null, { lean: true }, (err, videos) => {
             if(!!err) return next(err);
