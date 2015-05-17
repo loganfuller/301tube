@@ -54,10 +54,10 @@ const scheduleUpdate = function() {
         updateTimeout = null;
         crawler.updateAll301(err => {
             if(!!err) console.error(`update error: ${err}`);
-
-            // Updating rankings
             Video.regenerateRankings((err, model) => {
                 if(!!err) console.error(`ranking update error: ${err}`);
+
+                console.log("Update complete.");
 
                 scheduleUpdate();
             });
@@ -84,6 +84,9 @@ module.exports = {
             if(!!err) console.error(`update error: ${err}`);
             Video.regenerateRankings((err, model) => {
                 if(!!err) console.error(`ranking update error: ${err}`);
+
+                console.log("Update complete.");
+
                 scheduleUpdate();
             });
         });

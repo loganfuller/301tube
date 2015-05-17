@@ -203,57 +203,82 @@ class Crawler {
             if(!!err) return next(err);
             if(!videos.length) return next();
 
-            const q = async.queue((video, callback) => {
-                // TODO: batch this
-                this.youTube.videoStatistics([video.videoId], (err, videoStatistics) => {
+            console.log(`Processing ${videos.length} videos...`);
+
+            const c = async.cargo((videos, callback) => {
+                this.youTube.videoStatistics([videos.map(video => video.videoId)], (err, videoStatistics) => {
                     if(!!err) {
                         console.error(err);
                         return callback(err);
+                    } else if(!videoStatistics.items.length) {
+                        return callback();
                     }
 
-                    let updateObj = {};
-                    if(!videoStatistics.items.length) {
-                        // Video was likely made private. Mark inactive.
-                        updateObj.active = false;
-                    } else {
-                        updateObj.statistics = {
-                            viewCount: videoStatistics.items[0].statistics.viewCount,
-                            likeCount: videoStatistics.items[0].statistics.likeCount,
-                            dislikeCount: videoStatistics.items[0].statistics.dislikeCount,
-                            favoriteCount: videoStatistics.items[0].statistics.favoriteCount,
-                            commentCount: videoStatistics.items[0].statistics.commentCount
-                        };
+                    const updatedVideos = videos.map(video => {
+                        const videoStatisticsItem = _.find(videoStatistics.items, "id", video.videoId);
 
-                        // Add new value to historicalStatistics if stats have changed
-                        if(_.reduce(video.statistics, (isDiff, value, key) => {
-                            return isDiff || parseInt(updateObj.statistics[key]) !== parseInt(value);
-                        }, false)) {
-                            updateObj["$push"] = {
-                                historicalStatistics: {
-                                    timestamp: Date.now(),
-                                    viewCount: videoStatistics.items[0].statistics.viewCount,
-                                    likeCount: videoStatistics.items[0].statistics.likeCount,
-                                    dislikeCount: videoStatistics.items[0].statistics.dislikeCount,
-                                    favoriteCount: videoStatistics.items[0].statistics.favoriteCount,
-                                    commentCount: videoStatistics.items[0].statistics.commentCount
-                                }
+                        let updateObj = {};
+
+                        if(!videoStatisticsItem) {
+                            // Video was likely made private. Mark inactive.
+                            updateObj.active = false;
+                        } else {
+                            updateObj.statistics = {
+                                viewCount: videoStatisticsItem.statistics.viewCount,
+                                likeCount: videoStatisticsItem.statistics.likeCount,
+                                dislikeCount: videoStatisticsItem.statistics.dislikeCount,
+                                favoriteCount: videoStatisticsItem.statistics.favoriteCount,
+                                commentCount: videoStatisticsItem.statistics.commentCount
                             };
-                        }
-                    }
 
-                    Video.update({ videoId: video.videoId }, updateObj, err => {
-                        if(!!err) {
-                            console.error(err);
-                            return callback(err);
+                            // Add new value to historicalStatistics if stats have changed
+                            if(_.reduce(video.statistics, (isDiff, value, key) => {
+                                return isDiff || parseInt(updateObj.statistics[key]) !== parseInt(value);
+                            }, false)) {
+                                updateObj["$push"] = {
+                                    historicalStatistics: {
+                                        timestamp: Date.now(),
+                                        viewCount: videoStatisticsItem.statistics.viewCount,
+                                        likeCount: videoStatisticsItem.statistics.likeCount,
+                                        dislikeCount: videoStatisticsItem.statistics.dislikeCount,
+                                        favoriteCount: videoStatisticsItem.statistics.favoriteCount,
+                                        commentCount: videoStatisticsItem.statistics.commentCount
+                                    }
+                                };
+                            }
                         }
 
-                        // Mark all videos with > 301 views as inactive
-                        Video.update({"statistics.viewCount": { "$ne": 301 } }, { active: false }, { multi: true }, callback);
+                        return {
+                            videoId: video.videoId,
+                            updateObj: updateObj
+                        };
                     });
+
+                    // Save updated videos to the DB
+                    const q = async.queue((updatedVideo, callback) => {
+                        Video.update({ videoId: updatedVideo.videoId }, updatedVideo.updateObj, err => {
+                            if(!!err) console.error(err);
+                            callback(err);
+                        });
+                    }, config.youTube.concurrency);
+
+                    q.drain = callback;
+                    q.push(updatedVideos);
                 });
-            }, config.youTube.concurrency);
-            q.drain = next;
-            q.push(videos);
+            }, 50 /* Max results allowed by YouTube API */);
+
+            let interval = setInterval(() => {
+                console.log(`${c.length()} videos remaining to update`);
+            }, 5000);
+
+            c.drain = () => {
+                clearInterval(interval);
+
+                // Mark all videos with > 301 views as inactive
+                Video.update({"statistics.viewCount": { "$ne": 301 } }, { active: false }, { multi: true }, next);
+            };
+
+            c.push(videos);
         });
     }
 };
