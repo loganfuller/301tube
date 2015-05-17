@@ -16,7 +16,7 @@ const videoSchema = new Schema({
     publishedAt: Date,
     title: String,
     description: String,
-    source: { type: String, enum: ["youTube", "reddit"] },
+    source: { type: String, enum: ["youTube", "reddit", "digg"] },
     thumbnails: {
         default: String,
         medium: String,
@@ -62,7 +62,7 @@ let mapFuncString = `(function() {
         scalingFactor = 1 - (this.channelSubscriberCount * 0.25) / 200000;
     }
 
-    if(this.source === "reddit") {
+    if(this.source !== "youTube") {
         scalingFactor += 0.1;
     }
 

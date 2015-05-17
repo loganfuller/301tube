@@ -5,7 +5,8 @@ const config = require("stockpiler")(),
     EventEmitter = require("events").EventEmitter;
 
 const YouTube = require("./YouTube"),
-    Reddit = require("./Reddit");
+    Reddit = require("./Reddit"),
+    Digg = require("./Digg");
 
 const Video = require("./models/Video");
 
@@ -13,6 +14,7 @@ class Crawler {
     constructor(redis) {
         this.redis = redis;
         this.youTube = new YouTube();
+        this.digg = new Digg();
         this.reddit = new Reddit();
     }
 
@@ -144,6 +146,15 @@ class Crawler {
         }, config.youTube.concurrency);
         q.drain = next;
         q.push(page.items);
+    }
+
+    searchDigg(next) {
+        console.log("Searching Digg...");
+
+        this.digg.scrapeDigg((err, videoIds) => {
+            if(!!err) return next(err);
+            this._processVideoIds("digg", videoIds, next);
+        });
     }
 
     searchReddit(next) {

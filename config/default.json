@@ -28,6 +28,10 @@
         "maxPages": 3,
         "concurrency": 5
     },
+    "digg": {
+        "searchCooldownSecs": 300,
+        "concurrency": 10
+    },
     "youTube": {
         "searchCooldownSecs": 70,
         "latestVideoLookbackMins": 45,

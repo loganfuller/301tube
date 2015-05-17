@@ -37,6 +37,17 @@ const scheduleYouTubeSearch = function() {
     }, config.youTube.searchCooldownSecs * 1000);
 };
 
+let diggSearchTimeout;
+const scheduleDiggSearch = function() {
+    diggSearchTimeout = setTimeout(() => {
+        diggSearchTimeout = null;
+        crawler.searchDigg(err => {
+            if(!!err) console.error(`search error: ${err}`);
+            scheduleDiggSearch();
+        });
+    }, config.digg.searchCooldownSecs * 1000);
+};
+
 let redditSearchTimeout;
 const scheduleRedditSearch = function() {
     redditSearchTimeout = setTimeout(() => {
@@ -73,6 +84,12 @@ module.exports = {
             scheduleYouTubeSearch();
         });
 
+        // Perform initial Digg search
+        crawler.searchDigg(err => {
+            if(!!err) console.error(`search error: ${err}`);
+            scheduleDiggSearch();
+        });
+
         // Perform initial Reddit search
         crawler.searchReddit(err => {
             if(!!err) console.error(`search error: ${err}`);
@@ -93,6 +110,7 @@ module.exports = {
     },
     stop: () => {
         clearTimeout(youTubeSearchTimeout);
+        clearTimeout(diggSearchTimeout);
         clearTimeout(redditSearchTimeout);
         clearTimeout(updateTimeout);
     }
