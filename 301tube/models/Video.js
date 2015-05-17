@@ -108,7 +108,7 @@ let mapFuncString = `(function() {
         rank: rank,
         rExp: rExp,
         rLin: rLin,
-        r: ((rExp - rLin) > 0.05 && rExp > 0.8) ? rExp : 0
+        r: (rExp > rLin && rExp > 0.8) ? rExp : 0
     });
 })`
     .replace("'__SPEARSON__'", fs.readFileSync(require.resolve("spearson"), { encoding: "utf8" }))
@@ -123,7 +123,6 @@ videoSchema.statics.regenerateRankings = function(next) {
             return obj;
         },
         query: {
-            "statistics.viewCount": 301,
             "historicalStatistics.4": {
                 "$exists": true
             },

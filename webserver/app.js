@@ -39,7 +39,10 @@ app.get("*", function (req, res) {
             rankedModel
                 .find()
                 .limit(25)
-                .sort("-value.rank")
+                .sort({
+                    "value.r": -1,
+                    "value.rank": -1
+                })
                 .exec((err, videos) => {
                     if(err) {
                         console.error(err);
