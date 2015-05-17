@@ -131,7 +131,7 @@ videoSchema.statics.regenerateRankings = function(next) {
             },
             active: true,
             title: {
-                "$not": /movie|minecraft|trailer|hearthstone|gta|(my little pony)|download|(m\.o\.v\.i\.e)|episode|hack|keygen|cheat|wwe|(game of thrones)/ig
+                "$not": /movie|minecraft|hardline|hearthstone|gta|(my little pony)|download|(m\.o\.v\.i\.e)|episode|keygen|cheat|wwe|(game of thrones)/ig
             }
         },
         jsMode: true,
