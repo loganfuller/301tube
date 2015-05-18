@@ -104,9 +104,10 @@ let mapFuncString = `(function() {
     rLin *= rLin;
     rExp *= rExp;
 
-    var rDiff = (rExp > rLin && rExp >= 0.8) ? rExp - rLin : 0;
+    var isExponential = rExp > rLin && rExp >= 0.8,
+        rDiff = rExp - rLin;
 
-    if(rDiff) {
+    if(isExponential) {
         scalingFactor += (expReg.equation[1] * 150);
     }
 
@@ -125,6 +126,7 @@ let mapFuncString = `(function() {
         scalingFactor: scalingFactor,
         score: score,
         bExp: expReg.equation[1],
+        isExponential: isExponential,
         rExp: rExp,
         rLin: rLin,
         rDiff: rDiff
