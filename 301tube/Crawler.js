@@ -26,6 +26,7 @@ class Crawler {
         Video.create({
             videoId: videoDetails.id,
             channelId: videoDetails.snippet.channelId,
+            categoryId: videoDetails.snippet.categoryId,
             channelSubscriberCount: channelDetails.statistics.subscriberCount,
             channelTitle: videoDetails.snippet.channelTitle,
             publishedAt: videoDetails.snippet.publishedAt,

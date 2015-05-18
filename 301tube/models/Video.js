@@ -11,6 +11,7 @@ const videoSchema = new Schema({
     active: { type: Boolean, default: true },
     videoId: { type: String, index: { unique: true } },
     channelId: String,
+    categoryId: String,
     channelSubscriberCount: Number,
     channelTitle: String,
     publishedAt: Date,
