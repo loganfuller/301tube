@@ -40,7 +40,7 @@ app.get("*", function (req, res) {
                 .find()
                 .limit(25)
                 .sort({
-                    "value.rDiff": -1,
+                    // "value.bExp": -1,
                     "value.score": -1
                 })
                 .exec((err, videos) => {

@@ -11,7 +11,7 @@ const videoSchema = new Schema({
     active: { type: Boolean, default: true },
     videoId: { type: String, index: { unique: true } },
     channelId: String,
-    categoryId: String,
+    categoryId: { type: String, index: true },
     channelSubscriberCount: Number,
     channelTitle: String,
     publishedAt: Date,
@@ -63,7 +63,12 @@ let mapFuncString = `(function() {
     }
 
     if(this.source !== "youTube") {
-        scalingFactor += 0.05;
+        scalingFactor += 0.085;
+    }
+
+    // Penalty for gaming videos
+    if(this.categoryId === "20") {
+        scalingFactor -= 0.25;
     }
 
     var y = 0;
@@ -81,17 +86,25 @@ let mapFuncString = `(function() {
     var initialTimestamp = this.historicalStatistics[0].timestamp / 1000,
         historicalScoreData = this.historicalStatistics.map(function(dataPoint) { return [(dataPoint.timestamp/1000) - initialTimestamp, dataPoint.likeCount - dataPoint.dislikeCount]; });
 
+    var linReg = window.regression("linear", historicalScoreData),
+        expReg = window.regression("exponential", historicalScoreData);
+
     var rLin = this.spearson.correlation.pearson(
         historicalScoreData.map(function(point) { return point[1]; }),
-        window.regression("linear", historicalScoreData).points.map(function(point) { return point[1]; })
+        linReg.points.map(function(point) { return point[1]; })
     );
     var rExp = this.spearson.correlation.pearson(
         historicalScoreData.map(function(point) { return point[1]; }),
-        window.regression("exponential", historicalScoreData).points.map(function(point) { return point[1]; })
+        expReg.points.map(function(point) { return point[1]; })
     );
+
+    // Calculate coefficients of determination from correlation coefficients
+    rLin *= rLin;
+    rExp *= rExp;
+
     var rDiff = (rExp > rLin && rExp >= 0.8) ? rExp - rLin : 0;
 
-    scalingFactor += (rDiff * 5);
+    scalingFactor += (expReg.equation[1] * 1000);
 
     var score = scalingFactor * (Math.log(Math.max(Math.abs(voteScore),1))/Math.LN10) + (y * timeDiffSecs) / 45000;
     // var score = (y * Math.abs(totalScore * scalingFactor)) / (Math.pow(timeDiffHours + 2, 1.5));
@@ -107,6 +120,7 @@ let mapFuncString = `(function() {
         statistics: this.statistics,
         scalingFactor: scalingFactor,
         score: score,
+        bExp: expReg.equation[1],
         rExp: rExp,
         rLin: rLin,
         rDiff: rDiff
