@@ -57,18 +57,18 @@ let mapFuncString = `(function() {
 
     var scalingFactor;
     if(this.channelSubscriberCount > 300000) {
-        scalingFactor = 0.6;
+        scalingFactor = 0.5;
     } else {
-        scalingFactor = 1 - (this.channelSubscriberCount * 0.4) / 300000;
+        scalingFactor = 1 - (this.channelSubscriberCount * 0.5) / 300000;
     }
 
     if(this.source !== "youTube") {
         scalingFactor += 0.085;
     }
 
-    // Penalty for gaming videos
-    if(this.categoryId === "20") {
-        scalingFactor -= 0.25;
+    // Penalty for gaming / sports videos
+    if(this.categoryId && this.categoryId.search(/20|17/i) !== -1) {
+        scalingFactor -= 0.2;
     }
 
     var y = 0;
@@ -83,8 +83,10 @@ let mapFuncString = `(function() {
     '__SPEARSON__'
     '__REGRESSION__'
 
-    var initialTimestamp = this.historicalStatistics[0].timestamp / 1000,
-        historicalScoreData = this.historicalStatistics.map(function(dataPoint) { return [(dataPoint.timestamp/1000) - initialTimestamp, dataPoint.likeCount - dataPoint.dislikeCount]; });
+    var initialTimestamp = Math.round(this.publishedAt / 1000 / 12),
+        historicalScoreData = this.historicalStatistics.map(function(dataPoint) { return [Math.round(dataPoint.timestamp / 1000 / 12) - initialTimestamp, dataPoint.likeCount - dataPoint.dislikeCount]; });
+
+    historicalScoreData.unshift([0,1]);
 
     var linReg = window.regression("linear", historicalScoreData),
         expReg = window.regression("exponential", historicalScoreData);
@@ -104,10 +106,12 @@ let mapFuncString = `(function() {
 
     var rDiff = (rExp > rLin && rExp >= 0.8) ? rExp - rLin : 0;
 
-    scalingFactor += (expReg.equation[1] * 1000);
+    if(rDiff) {
+        scalingFactor += (expReg.equation[1] * 150);
+    }
 
     var score = scalingFactor * (Math.log(Math.max(Math.abs(voteScore),1))/Math.LN10) + (y * timeDiffSecs) / 45000;
-    // var score = (y * Math.abs(totalScore * scalingFactor)) / (Math.pow(timeDiffHours + 2, 1.5));
+    // var score = (y * scalingFactor * (Math.log(Math.max(Math.abs(voteScore),1))/Math.LN10)) / (Math.pow(timeDiffSecs / 60 / 60 + 2, 1.025));
 
     emit(this._id, {
         videoId: this.videoId,
@@ -146,7 +150,7 @@ videoSchema.statics.regenerateRankings = function(next) {
             },
             active: true,
             title: {
-                "$not": /movie|minecraft|hardline|hearthstone|gta|(my little pony)|download|(m\.o\.v\.i\.e)|episode|keygen|cheat|wwe|(game of thrones)/ig
+                "$not": /movie|minecraft|hardline|hearthstone|cs:go|dota|(league of legends)|gta|(my little pony)|download|(m\.o\.v\.i\.e)|episode|keygen|cheat|wwe|(game of thrones)/ig
             }
         },
         jsMode: true,
