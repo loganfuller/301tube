@@ -41,7 +41,7 @@ app.get("*", function (req, res) {
                 .limit(25)
                 .sort({
                     "value.rDiff": -1,
-                    "value.rank": -1
+                    "value.score": -1
                 })
                 .exec((err, videos) => {
                     if(err) {

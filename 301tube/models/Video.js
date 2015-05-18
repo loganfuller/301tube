@@ -52,27 +52,24 @@ videoSchema.statics.getRankedModel = function(next) {
 
 let mapFuncString = `(function() {
     var timeDiffSecs = (this.publishedAt / 1000) - 1427851426,
-        voteScore = this.statistics.likeCount - this.statistics.dislikeCount,
-        totalScore = voteScore + (1.25 * this.statistics.favoriteCount) + (1 * this.statistics.commentCount);
+        voteScore = this.statistics.likeCount - this.statistics.dislikeCount;
 
     var scalingFactor;
-    if(this.channelSubscriberCount > 200000) {
-        scalingFactor = 0.75;
+    if(this.channelSubscriberCount > 300000) {
+        scalingFactor = 0.6;
     } else {
-        scalingFactor = 1 - (this.channelSubscriberCount * 0.25) / 200000;
+        scalingFactor = 1 - (this.channelSubscriberCount * 0.4) / 300000;
     }
 
     if(this.source !== "youTube") {
-        scalingFactor += 0.1;
+        scalingFactor += 0.05;
     }
 
-    var y;
+    var y = 0;
     if(voteScore < 0) {
         y = -1;
-    } if(voteScore > 0 || (voteScore === 0 && totalScore > 0)) {
+    } else if(voteScore > 0) {
         y = 1;
-    } else {
-        y = 0;
     }
 
     // Exponential regression analysis
@@ -91,9 +88,12 @@ let mapFuncString = `(function() {
         historicalScoreData.map(function(point) { return point[1]; }),
         window.regression("exponential", historicalScoreData).points.map(function(point) { return point[1]; })
     );
+    var rDiff = (rExp > rLin && rExp >= 0.8) ? rExp - rLin : 0;
 
-    var rank = scalingFactor * (Math.log(Math.max(Math.abs(totalScore),1))/Math.LN10) + (y * timeDiffSecs) / 45000;
-    // var rank = (y * Math.abs(totalScore * scalingFactor)) / (Math.pow(timeDiffHours + 2, 1.5));
+    scalingFactor += (rDiff * 5);
+
+    var score = scalingFactor * (Math.log(Math.max(Math.abs(voteScore),1))/Math.LN10) + (y * timeDiffSecs) / 45000;
+    // var score = (y * Math.abs(totalScore * scalingFactor)) / (Math.pow(timeDiffHours + 2, 1.5));
 
     emit(this._id, {
         videoId: this.videoId,
@@ -105,10 +105,10 @@ let mapFuncString = `(function() {
         publishedAt: this.publishedAt,
         statistics: this.statistics,
         scalingFactor: scalingFactor,
-        rank: rank,
+        score: score,
         rExp: rExp,
         rLin: rLin,
-        rDiff: (rExp > rLin && rExp >= 0.8) ? rExp - rLin : 0
+        rDiff: rDiff
     });
 })`
     .replace("'__SPEARSON__'", fs.readFileSync(require.resolve("spearson"), { encoding: "utf8" }))
