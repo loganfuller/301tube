@@ -124,7 +124,7 @@ class Crawler {
                     // If first-level filters passed, fetch additional info
                     async.parallel({
                         videoStatistics: cb => {
-                            this.youTube.videoStatistics([item.id.videoId], cb);
+                            this.youTube.videoStatistics([item.id.videoId], cb, true);
                         },
                         channelStatistics: cb => {
                             this.youTube.channelStatistics([item.snippet.channelId], cb);
@@ -137,7 +137,7 @@ class Crawler {
                             return this._addToRedisBlackList(item.id.videoId, callback);
                         } else if(results.videoStatistics.items[0].statistics.viewCount === "301") {
                             // Save video to Mongo
-                            this._saveVideo("youTube", _.merge(item, results.videoStatistics.items[0]), results.channelStatistics.items[0], callback);
+                            this._saveVideo("youTube", results.videoStatistics.items[0], results.channelStatistics.items[0], callback);
                         } else {
                             callback();
                         }
