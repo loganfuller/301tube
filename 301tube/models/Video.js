@@ -63,12 +63,12 @@ let mapFuncString = `(function() {
     }
 
     if(this.source !== "youTube") {
-        scalingFactor += 0.085;
+        scalingFactor += 0.1;
     }
 
     // Penalty for gaming / sports videos
     if(this.categoryId && this.categoryId.search(/20|17/i) !== -1) {
-        scalingFactor -= 0.2;
+        scalingFactor -= 0.25;
     }
 
     var y = 0;
