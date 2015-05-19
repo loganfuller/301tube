@@ -63,7 +63,7 @@ let mapFuncString = `(function() {
     }
 
     if(this.source !== "youTube") {
-        scalingFactor += 0.1;
+        scalingFactor += 0.2;
     }
 
     // Penalty for gaming / sports videos
