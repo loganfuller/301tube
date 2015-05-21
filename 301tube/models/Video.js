@@ -8,6 +8,7 @@ const mongoose = require("mongoose"),
 let _rankedModel;
 
 const videoSchema = new Schema({
+    updatedAt: { type: Date, default: Date.now },
     active: { type: Boolean, default: true },
     videoId: { type: String, index: { unique: true } },
     channelId: String,
@@ -41,6 +42,11 @@ const videoSchema = new Schema({
 }, {
     strict: true,
     safe: true
+});
+
+videoSchema.pre("save", function(next) {
+    this.updatedAt = new Date();
+    next();
 });
 
 videoSchema.statics.getRankedModel = function(next) {
