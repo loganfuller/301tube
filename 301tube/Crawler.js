@@ -229,7 +229,9 @@ class Crawler {
                     const updatedVideos = videos.map(video => {
                         const videoStatisticsItem = _.find(videoStatistics.items, "id", video.videoId);
 
-                        let updateObj = {};
+                        let updateObj = {
+                            updatedAt: new Date()
+                        };
 
                         if(!videoStatisticsItem) {
                             // Video was likely made private. Mark inactive.

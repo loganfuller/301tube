@@ -8,6 +8,7 @@ const mongoose = require("mongoose"),
 let _rankedModel;
 
 const videoSchema = new Schema({
+    createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
     active: { type: Boolean, default: true },
     videoId: { type: String, index: { unique: true } },
