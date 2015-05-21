@@ -76,6 +76,17 @@ const scheduleUpdate = function() {
     }, config.updateCooldownSecs * 1000);
 };
 
+let archiveTimeout;
+const scheduleArchive = function() {
+    archiveTimeout = setTimeout(() => {
+        archiveTimeout = null;
+        crawler.archiveOldVideos(err => {
+            if(!!err) console.error(`archive error: ${err}`);
+            scheduleArchive();
+        });
+    }, config.archiveCooldownSecs * 1000);
+};
+
 module.exports = {
     start: () => {
         // Perform initial YouTube search
@@ -107,11 +118,18 @@ module.exports = {
                 scheduleUpdate();
             });
         });
+
+        // Perform initial archive
+        crawler.archiveOldVideos(err => {
+            if(!!err) console.error(`archive error: ${err}`);
+            scheduleArchive();
+        });
     },
     stop: () => {
         clearTimeout(youTubeSearchTimeout);
         clearTimeout(diggSearchTimeout);
         clearTimeout(redditSearchTimeout);
         clearTimeout(updateTimeout);
+        clearTimeout(archiveTimeout);
     }
 };

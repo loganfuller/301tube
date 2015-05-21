@@ -208,6 +208,93 @@ class Crawler {
         );
     }
 
+    // Update old videos with final view counts
+    archiveOldVideos(next) {
+        console.log("Archiving old videos...");
+
+        Video.find({
+            "active": false,
+            "archived": false,
+            "$where": `new Date().getTime() >= new Date(this.createdAt.getTime() + (${config.minimumArchiveAgeSecs} * 1000))`
+        }, { _id: 1, videoId: 1 }, { lean: true }, (err, videos) => {
+            if(!!err || !videos.length) return next(err);
+
+            console.log(`Archiving ${videos.length} videos...`);
+
+            const c = async.cargo((videos, callback) => {
+                this.youTube.videoStatistics([videos.map(video => video.videoId)], (err, videoStatistics) => {
+                    if(!!err) {
+                        console.error(err);
+                        return callback(err);
+                    }
+
+                    const updatedVideos = videos.map(video => {
+                        const videoStatisticsItem = _.find(videoStatistics.items, "id", video.videoId);
+
+                        let updateObj = {
+                            updatedAt: new Date()
+                        };
+
+                        if(!videoStatisticsItem) {
+                            // Video was likely made private
+                            updateObj.wasRemoved = true;
+                        } else {
+                            updateObj.statistics = {
+                                viewCount: videoStatisticsItem.statistics.viewCount,
+                                likeCount: videoStatisticsItem.statistics.likeCount,
+                                dislikeCount: videoStatisticsItem.statistics.dislikeCount,
+                                favoriteCount: videoStatisticsItem.statistics.favoriteCount,
+                                commentCount: videoStatisticsItem.statistics.commentCount
+                            };
+
+                            // Add new value to historicalStatistics if stats have changed
+                            if(_.reduce(video.statistics, (isDiff, value, key) => {
+                                return isDiff || parseInt(updateObj.statistics[key]) !== parseInt(value);
+                            }, false)) {
+                                updateObj["$push"] = {
+                                    historicalStatistics: {
+                                        timestamp: Date.now(),
+                                        viewCount: videoStatisticsItem.statistics.viewCount,
+                                        likeCount: videoStatisticsItem.statistics.likeCount,
+                                        dislikeCount: videoStatisticsItem.statistics.dislikeCount,
+                                        favoriteCount: videoStatisticsItem.statistics.favoriteCount,
+                                        commentCount: videoStatisticsItem.statistics.commentCount
+                                    }
+                                };
+                            }
+                        }
+
+                        // If likes are higher than views, assume view count is not yet accurate
+                        if(updateObj.wasRemoved || updateObj.statistics.viewCount > updateObj.statistics.likeCount) {
+                            updateObj.archived = true;
+                        }
+
+                        return {
+                            _id: video._id,
+                            updateObj: updateObj
+                        };
+                    });
+
+                    // Save updated videos to the DB
+                    async.eachLimit(updatedVideos, config.youTube.concurrency, (updatedVideo, callback) => {
+                        Video.update({ _id: updatedVideo._id }, updatedVideo.updateObj, callback);
+                    }, callback);
+                });
+            }, 50 /* Max results allowed by YouTube API */);
+
+            let interval = setInterval(() => {
+                console.log(`${c.length()} videos remaining to archive`);
+            }, 5000);
+
+            c.drain = () => {
+                clearInterval(interval);
+                next();
+            };
+
+            c.push(videos);
+        });
+    }
+
     updateAll301(next) {
         console.log("Updating...");
 
@@ -215,15 +302,13 @@ class Crawler {
             if(!!err) return next(err);
             if(!videos.length) return next();
 
-            console.log(`Processing ${videos.length} videos...`);
+            console.log(`Updating ${videos.length} videos...`);
 
             const c = async.cargo((videos, callback) => {
                 this.youTube.videoStatistics([videos.map(video => video.videoId)], (err, videoStatistics) => {
                     if(!!err) {
                         console.error(err);
                         return callback(err);
-                    } else if(!videoStatistics.items.length) {
-                        return callback();
                     }
 
                     const updatedVideos = videos.map(video => {
@@ -236,6 +321,7 @@ class Crawler {
                         if(!videoStatisticsItem) {
                             // Video was likely made private. Mark inactive.
                             updateObj.active = false;
+                            updateObj.wasRemoved = true;
                         } else {
                             updateObj.statistics = {
                                 viewCount: videoStatisticsItem.statistics.viewCount,
@@ -289,7 +375,7 @@ class Crawler {
                 clearInterval(interval);
 
                 // Mark all videos with > 301 views as inactive
-                Video.update({"statistics.viewCount": { "$ne": 301 } }, { active: false }, { multi: true }, next);
+                Video.update({"statistics.viewCount": { "$gt": 301 } }, { active: false }, { multi: true }, next);
             };
 
             c.push(videos);
