@@ -11,6 +11,7 @@ const videoSchema = new Schema({
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
     active: { type: Boolean, default: true },
+    archived: { type: Boolean, default: false },
     videoId: { type: String, index: { unique: true } },
     channelId: String,
     categoryId: { type: String, index: true },
