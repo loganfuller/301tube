@@ -215,8 +215,8 @@ class Crawler {
         Video.find({
             "active": false,
             "archived": false,
-            "$where": `new Date().getTime() >= new Date(this.createdAt.getTime() + (${config.minimumArchiveAgeSecs} * 1000))`
-        }, { _id: 1, videoId: 1 }, { lean: true }, (err, videos) => {
+            "$where": `new Date().getTime() >= new Date(this.createdAt.getTime() + (${config.minArchiveAgeSecs} * 1000))`
+        }, { _id: 1, videoId: 1, createdAt: 1 }, { lean: true }, (err, videos) => {
             if(!!err || !videos.length) return next(err);
 
             console.log(`Archiving ${videos.length} videos...`);
@@ -265,7 +265,7 @@ class Crawler {
                         }
 
                         // If likes are higher than views, assume view count is not yet accurate
-                        if(updateObj.wasRemoved || updateObj.statistics.viewCount > updateObj.statistics.likeCount) {
+                        if(updateObj.wasRemoved || moment(video.createdAt).add(config.maxArchiveAgeSecs).isBefore(new Date()) || (updateObj.statistics.viewCount > updateObj.statistics.likeCount)) {
                             updateObj.archived = true;
                         }
 

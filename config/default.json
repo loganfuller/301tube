@@ -22,7 +22,8 @@
     "client": {
         "useCdn": false
     },
-    "minimumArchiveAgeSecs": 86400,
+    "minArchiveAgeSecs": 86400,
+    "maxArchiveAgeSecs": 172800,
     "archiveCooldownSecs": 3600,
     "updateCooldownSecs": 60,
     "reddit": {
