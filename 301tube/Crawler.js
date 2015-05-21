@@ -298,7 +298,11 @@ class Crawler {
     updateAll301(next) {
         console.log("Updating...");
 
-        Video.find({ "statistics.viewCount": 301, "active": true }, null, { lean: true }, (err, videos) => {
+        Video.find({ "statistics.viewCount": 301, "active": true }, {
+            _id: 1,
+            videoId: 1,
+            statistics: 1
+        }, { lean: true }, (err, videos) => {
             if(!!err) return next(err);
             if(!videos.length) return next();
 
@@ -349,21 +353,15 @@ class Crawler {
                         }
 
                         return {
-                            videoId: video.videoId,
+                            _id: video._id,
                             updateObj: updateObj
                         };
                     });
 
                     // Save updated videos to the DB
-                    const q = async.queue((updatedVideo, callback) => {
-                        Video.update({ videoId: updatedVideo.videoId }, updatedVideo.updateObj, err => {
-                            if(!!err) console.error(err);
-                            callback(err);
-                        });
-                    }, config.youTube.concurrency);
-
-                    q.drain = callback;
-                    q.push(updatedVideos);
+                    async.eachLimit(updatedVideos, config.youTube.concurrency, (updatedVideo, callback) => {
+                        Video.update({ _id: updatedVideo._id }, updatedVideo.updateObj, callback);
+                    }, callback);
                 });
             }, 50 /* Max results allowed by YouTube API */);
 
