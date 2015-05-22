@@ -12,9 +12,9 @@ class Digg {
             .run((err, articleUrls) => {
                 if(!!err) {
                     console.error(err);
-                    return callback(err);
+                    return next(err);
                 } else if(!articleUrls.length) {
-                    return callback(null);
+                    return next(null);
                 }
 
                 const q = async.queue((articleUrl, callback) => {
