@@ -155,7 +155,7 @@ videoSchema.statics.regenerateRankings = function(next) {
             return obj;
         },
         query: {
-            "historicalStatistics.4": {
+            "historicalStatistics.2": {
                 "$exists": true
             },
             "statistics.likeCount": {
