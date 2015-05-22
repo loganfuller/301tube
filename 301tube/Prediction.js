@@ -39,7 +39,7 @@ class Prediction {
             this.prediction.trainedmodels.predict({
                 auth: this.authClient,
                 id: config.prediction.viewCountsModel,
-                project: config.prediction.projectId,
+                project: config.prediction.projectId.toString(),
                 resource: {
                     input: {
                         csvInstance: [
