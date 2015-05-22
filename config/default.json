@@ -32,6 +32,7 @@
         "clientEmail": "client@example.com"
     },
     "prediction": {
+        "enabled": false,
         "projectId": "0",
         "viewCountsModel": "MODEL_NAME_HERE",
         "concurrency": 15
