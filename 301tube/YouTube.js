@@ -6,7 +6,7 @@ class YouTube {
     constructor() {
         this.youTube = google.youtube({
             version: "v3",
-            auth: config.youTube.apiKey
+            auth: config.google.apiKey
         });
     }
 

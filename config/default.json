@@ -26,6 +26,9 @@
     "maxArchiveAgeSecs": 172800,
     "archiveCooldownSecs": 3600,
     "updateCooldownSecs": 60,
+    "google": {
+        "apiKey": "REPLACE_WITH_KEY"
+    },
     "reddit": {
         "searchCooldownSecs": 80,
         "maxPages": 3,
@@ -39,8 +42,7 @@
         "searchCooldownSecs": 70,
         "latestVideoLookbackMins": 45,
         "maxPages": 25,
-        "concurrency": 15,
-        "apiKey": "REPLACE_WITH_KEY"
+        "concurrency": 15
     },
     "redis": {
         "uri": null,

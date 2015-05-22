@@ -22,6 +22,7 @@ const videoSchema = new Schema({
     title: String,
     description: String,
     source: { type: String, enum: ["youTube", "reddit", "digg"] },
+    predictedViews: Number,
     thumbnails: {
         default: String,
         medium: String,
@@ -66,9 +67,9 @@ let mapFuncString = `(function() {
 
     var scalingFactor;
     if(this.channelSubscriberCount > 300000) {
-        scalingFactor = 0.5;
+        scalingFactor = 0.35;
     } else {
-        scalingFactor = 1 - (this.channelSubscriberCount * 0.5) / 300000;
+        scalingFactor = 1 - (this.channelSubscriberCount * 0.65) / 300000;
     }
 
     if(this.source !== "youTube") {
@@ -117,7 +118,7 @@ let mapFuncString = `(function() {
         rDiff = rExp - rLin;
 
     if(isExponential) {
-        scalingFactor += (expReg.equation[1] * 150);
+        scalingFactor += (expReg.equation[1] * 175);
     }
 
     var score = scalingFactor * (Math.log(Math.max(Math.abs(voteScore),1))/Math.LN10) + (y * timeDiffSecs) / 45000;
