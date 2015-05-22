@@ -66,9 +66,19 @@ const scheduleUpdate = function() {
         crawler.updateAll301(err => {
             if(!!err) console.error(`update error: ${err}`);
 
-            crawler.updateTopPredictedViews(err => {
-                if(!!err) console.error(`view prediction update error: ${err}`);
+            if(process.NODE_ENV !== "development") {
+                crawler.updateTopPredictedViews(err => {
+                    if(!!err) console.error(`view prediction update error: ${err}`);
 
+                    Video.regenerateRankings((err, model) => {
+                        if(!!err) console.error(`ranking update error: ${err}`);
+
+                        console.log("Update complete.");
+
+                        scheduleUpdate();
+                    });
+                });
+            } else {
                 Video.regenerateRankings((err, model) => {
                     if(!!err) console.error(`ranking update error: ${err}`);
 
@@ -76,7 +86,7 @@ const scheduleUpdate = function() {
 
                     scheduleUpdate();
                 });
-            });
+            }
         });
     }, config.updateCooldownSecs * 1000);
 };
@@ -116,9 +126,19 @@ module.exports = {
         crawler.updateAll301(err => {
             if(!!err) console.error(`update error: ${err}`);
 
-            crawler.updateTopPredictedViews(err => {
-                if(!!err) console.error(`view prediction update error: ${err}`);
+            if(process.NODE_ENV !== "development") {
+                crawler.updateTopPredictedViews(err => {
+                    if(!!err) console.error(`view prediction update error: ${err}`);
 
+                    Video.regenerateRankings((err, model) => {
+                        if(!!err) console.error(`ranking update error: ${err}`);
+
+                        console.log("Update complete.");
+
+                        scheduleUpdate();
+                    });
+                });
+            } else {
                 Video.regenerateRankings((err, model) => {
                     if(!!err) console.error(`ranking update error: ${err}`);
 
@@ -126,7 +146,7 @@ module.exports = {
 
                     scheduleUpdate();
                 });
-            });
+            }
         });
 
         // Perform initial archive
