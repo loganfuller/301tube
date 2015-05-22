@@ -56,7 +56,7 @@ app.get("*", function (req, res) {
                                 return {
                                     videoId: video.value.videoId,
                                     title: video.value.title,
-                                    predictedViewCount: video.value.predictedViewCount
+                                    predictedViewCount: video.value.predictedViewCount ? video.value.predictedViewCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "-"
                                 };
                             })
                         });
