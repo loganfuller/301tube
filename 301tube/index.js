@@ -65,12 +65,17 @@ const scheduleUpdate = function() {
         updateTimeout = null;
         crawler.updateAll301(err => {
             if(!!err) console.error(`update error: ${err}`);
-            Video.regenerateRankings((err, model) => {
-                if(!!err) console.error(`ranking update error: ${err}`);
 
-                console.log("Update complete.");
+            crawler.updateTopPredictedViews(err => {
+                if(!!err) console.error(`view prediction update error: ${err}`);
 
-                scheduleUpdate();
+                Video.regenerateRankings((err, model) => {
+                    if(!!err) console.error(`ranking update error: ${err}`);
+
+                    console.log("Update complete.");
+
+                    scheduleUpdate();
+                });
             });
         });
     }, config.updateCooldownSecs * 1000);
@@ -110,12 +115,17 @@ module.exports = {
         // Perform initial update
         crawler.updateAll301(err => {
             if(!!err) console.error(`update error: ${err}`);
-            Video.regenerateRankings((err, model) => {
-                if(!!err) console.error(`ranking update error: ${err}`);
 
-                console.log("Update complete.");
+            crawler.updateTopPredictedViews(err => {
+                if(!!err) console.error(`view prediction update error: ${err}`);
 
-                scheduleUpdate();
+                Video.regenerateRankings((err, model) => {
+                    if(!!err) console.error(`ranking update error: ${err}`);
+
+                    console.log("Update complete.");
+
+                    scheduleUpdate();
+                });
             });
         });
 

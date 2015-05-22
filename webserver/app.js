@@ -55,7 +55,8 @@ app.get("*", function (req, res) {
                             videos: videos.map(function(video) {
                                 return {
                                     videoId: video.value.videoId,
-                                    title: video.value.title
+                                    title: video.value.title,
+                                    predictedViewCount: video.value.predictedViewCount
                                 };
                             })
                         });

@@ -27,7 +27,14 @@
     "archiveCooldownSecs": 3600,
     "updateCooldownSecs": 60,
     "google": {
-        "apiKey": "REPLACE_WITH_KEY"
+        "apiKey": "REPLACE_WITH_API_KEY",
+        "privateKey": "REPLACE_WITH_RSA_KEY",
+        "clientEmail": "client@example.com"
+    },
+    "prediction": {
+        "projectId": "0",
+        "viewCountsModel": "MODEL_NAME_HERE",
+        "concurrency": 15
     },
     "reddit": {
         "searchCooldownSecs": 80,

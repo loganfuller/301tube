@@ -22,7 +22,7 @@ const videoSchema = new Schema({
     title: String,
     description: String,
     source: { type: String, enum: ["youTube", "reddit", "digg"] },
-    predictedViews: Number,
+    predictedViewCount: Number,
     thumbnails: {
         default: String,
         medium: String,
@@ -130,6 +130,7 @@ let mapFuncString = `(function() {
         title: this.title,
         source: this.source,
         description: this.description,
+        predictedViewCount: this.predictedViewCount,
         channelSubscriberCount: this.channelSubscriberCount,
         publishedAt: this.publishedAt,
         statistics: this.statistics,
@@ -154,6 +155,9 @@ videoSchema.statics.regenerateRankings = function(next) {
             return obj;
         },
         query: {
+            "predictedViewCount": {
+                "$exists": true
+            },
             "historicalStatistics.4": {
                 "$exists": true
             },

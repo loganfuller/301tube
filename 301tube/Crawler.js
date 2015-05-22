@@ -4,7 +4,8 @@ const config = require("stockpiler")(),
     async = require("async"),
     EventEmitter = require("events").EventEmitter;
 
-const YouTube = require("./YouTube"),
+const Prediction = require("./Prediction"),
+    YouTube = require("./YouTube"),
     Reddit = require("./Reddit"),
     Digg = require("./Digg");
 
@@ -13,6 +14,7 @@ const Video = require("./models/Video");
 class Crawler {
     constructor(redis) {
         this.redis = redis;
+        this.prediction = new Prediction();
         this.youTube = new YouTube();
         this.digg = new Digg();
         this.reddit = new Reddit();
@@ -292,6 +294,40 @@ class Crawler {
             };
 
             c.push(videos);
+        });
+    }
+
+    updateTopPredictedViews(next) {
+        console.log("Updating predicted views...");
+
+        Video.find({
+            "historicalStatistics.4": {
+                "$exists": true
+            },
+            "statistics.likeCount": {
+                "$gte": 25
+            },
+            active: true,
+            title: {
+                "$not": /movie|minecraft|hardline|hearthstone|cs:go|dota|(league of legends)|gta|(my little pony)|download|(m\.o\.v\.i\.e)|episode|keygen|cheat|wwe|(game of thrones)/ig
+            }
+        }, {
+            _id: 1,
+            videoId: 1,
+            title: 1,
+            description: 1,
+            categoryId: 1,
+            channelSubscriberCount: 1
+        }, { lean: true }, (err, videos) => {
+            if(!!err) return next(err);
+            if(!videos.length) return next();
+
+            async.eachLimit(_.reject(videos, video => _.has(video, "predictedViewCount")), config.prediction.concurrency, (video, callback) => {
+                this.prediction.predictViewCount(video, (err, result) => {
+                    if(err) return callback(err);
+                    Video.update({ _id: video._id }, { predictedViewCount: Math.round(parseInt(result.outputValue)) }, callback);
+                });
+            }, next);
         });
     }
 
