@@ -66,7 +66,7 @@ const scheduleUpdate = function() {
         crawler.updateAll301(err => {
             if(!!err) console.error(`update error: ${err}`);
 
-            if(process.NODE_ENV !== "development") {
+            if(process.env.NODE_ENV !== "development") {
                 crawler.updateTopPredictedViews(err => {
                     if(!!err) console.error(`view prediction update error: ${err}`);
 
@@ -126,7 +126,7 @@ module.exports = {
         crawler.updateAll301(err => {
             if(!!err) console.error(`update error: ${err}`);
 
-            if(process.NODE_ENV !== "development") {
+            if(process.env.NODE_ENV !== "development") {
                 crawler.updateTopPredictedViews(err => {
                     if(!!err) console.error(`view prediction update error: ${err}`);
 
