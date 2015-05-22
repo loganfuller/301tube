@@ -301,7 +301,7 @@ class Crawler {
         console.log("Updating predicted views...");
 
         Video.find({
-            "historicalStatistics.4": {
+            "historicalStatistics.2": {
                 "$exists": true
             },
             "statistics.likeCount": {
@@ -317,6 +317,7 @@ class Crawler {
             title: 1,
             description: 1,
             categoryId: 1,
+            predictedViewCount: 1,
             channelSubscriberCount: 1
         }, { lean: true }, (err, videos) => {
             if(!!err) return next(err);

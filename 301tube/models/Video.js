@@ -10,7 +10,7 @@ let _rankedModel;
 const videoSchema = new Schema({
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
-    active: { type: Boolean, default: true },
+    active: { type: Boolean, default: true, index: true },
     archived: { type: Boolean, default: false },
     wasRemoved: { type: Boolean, default: false },
     videoId: { type: String, index: { unique: true } },
